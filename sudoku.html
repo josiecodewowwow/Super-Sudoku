@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pretty Sudoku</title>
+
+<style>
+:root {
+  --bg: #f5f0fa;
+  --text: #382d46;
+  --secondary: #776d82;
+  --button: #e4dced;
+  --button-hover: #d8cde5;
+  --active: #8967bd;
+  --active-dark: #7250a5;
+  --board: #ffffff;
+  --cell: #ffffff;
+  --related: #f0eaf7;
+  --selected: #dfd0f3;
+  --same: #cdb9eb;
+  --grid: #c9c0d0;
+  --thick: #776b83;
+  --given: #302a36;
+  --player: #704ba9;
+  --wrong: #d94b59;
+  --notes: #776d82;
+  --heart: #df5260;
+}
+
+body.theme-pink {
+  --bg: #fff1f5;
+  --text: #492e3c;
+  --secondary: #8b6b78;
+  --button: #f4d9e3;
+  --button-hover: #ecc8d6;
+  --active: #d77999;
+  --active-dark: #bd5e80;
+  --board: #fffafd;
+  --cell: #fffafd;
+  --related: #fae8ee;
+  --selected: #f4cbd9;
+  --same: #edb8cc;
+  --grid: #d8b9c5;
+  --thick: #8d6574;
+  --given: #40303a;
+  --player: #b05279;
+  --wrong: #d94b59;
+  --notes: #8b6b78;
+}
+
+body.theme-blue {
+  --bg: #eef5fb;
+  --text: #293b4b;
+  --secondary: #667b8d;
+  --button: #d9e7f2;
+  --button-hover: #c9ddea;
+  --active: #6395bd;
+  --active-dark: #4c7fa7;
+  --board: #fbfdff;
+  --cell: #fbfdff;
+  --related: #e6f0f7;
+  --selected: #c9dfef;
+  --same: #b4d1e4;
+  --grid: #b8cbd8;
+  --thick: #607889;
+  --given: #283540;
+  --player: #467fa9;
+  --wrong: #d94b59;
+  --notes: #667b8d;
+}
+
+body.theme-cream {
+  --bg: #faf6ea;
+  --text: #493e2d;
+  --secondary: #887b65;
+  --button: #eee5ce;
+  --button-hover: #e5dac0;
+  --active: #b99b65;
+  --active-dark: #9d814e;
+  --board: #fffdf7;
+  --cell: #fffdf7;
+  --related: #f3eddd;
+  --selected: #e7d9b8;
+  --same: #dcc99e;
+  --grid: #d0c3a6;
+  --thick: #817354;
+  --given: #3f392f;
+  --player: #94763f;
+  --wrong: #d94b59;
+  --notes: #887b65;
+}
+
+body.theme-dark {
+  --bg: #17151b;
+  --text: #eee8f3;
+  --secondary: #aaa0b4;
+  --button: #302b36;
+  --button-hover: #3c3543;
+  --active: #9b78c8;
+  --active-dark: #805caf;
+  --board: #242029;
+  --cell: #242029;
+  --related: #302936;
+  --selected: #4b3d58;
+  --same: #59456d;
+  --grid: #4e4655;
+  --thick: #867993;
+  --given: #f0ebf3;
+  --player: #c09ae9;
+  --wrong: #f06a78;
+  --notes: #aaa0b4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.25s;
+}
+
+#app {
+  width: 100%;
+  max-width: 650px;
+  min-height: 100vh;
+  padding: 30px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.screen {
+  width: 100%;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+}
+
+.screen.active {
+  display: flex;
+}
+
+h1 {
+  font-size: 52px;
+  letter-spacing: 7px;
+  margin: 70px 0 5px;
+  font-weight: 700;
+}
+
+.subtitle {
+  color: var(--secondary);
+  font-size: 16px;
+  margin-bottom: 45px;
+}
+
+.menu-button {
+  width: 260px;
+  padding: 17px;
+  margin: 8px;
+  border: none;
+  border-radius: 15px;
+  background: var(--button);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.menu-button:hover {
+  background: var(--button-hover);
+  transform: translateY(-2px);
+}
+
+.menu-button.primary {
+  background: var(--active);
+  color: white;
+}
+
+.menu-button.primary:hover {
+  background: var(--active-dark);
+}
+
+.menu-title {
+  font-size: 30px;
+  margin: 70px 0 25px;
+}
+
+.theme-option {
+  width: 280px;
+  padding: 18px;
+  margin: 7px;
+  border: none;
+  border-radius: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.theme-option.lavender {
+  background: #e4dced;
+  color: #382d46;
+}
+
+.theme-option.pink {
+  background: #f4d9e3;
+  color: #492e3c;
+}
+
+.theme-option.blue {
+  background: #d9e7f2;
+  color: #293b4b;
+}
+
+.theme-option.cream {
+  background: #eee5ce;
+  color: #493e2d;
+}
+
+.theme-option.dark {
+  background: #302b36;
+  color: #eee8f3;
+}
+
+/* GAME */
+
+#gameScreen {
+  padding-top: 10px;
+}
+
+.game-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.game-title {
+  font-size: 25px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.stats {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  color: var(--secondary);
+  font-size: 14px;
+}
+
+.hearts {
+  color: var(--heart);
+  font-size: 20px;
+  letter-spacing: 2px;
+}
+
+#board {
+  width: min(560px, 94vw);
+  aspect-ratio: 1 / 1;
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  border: 3px solid var(--thick);
+  background: var(--thick);
+  gap: 1px;
+}
+
+.cell {
+  position: relative;
+  background: var(--cell);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: clamp(19px, 5vw, 31px);
+  cursor: pointer;
+  user-select: none;
+}
+
+.cell.related {
+  background: var(--related);
+}
+
+.cell.selected {
+  background: var(--selected);
+}
+
+.cell.same-number {
+  background: var(--same);
+}
+
+.cell.given {
+  color: var(--given);
+  font-weight: bold;
+}
+
+.cell.player {
+  color: var(--player);
+  font-weight: bold;
+}
+
+.cell.wrong {
+  color: var(--wrong);
+  font-weight: bold;
+}
+
+/* 3x3 box borders */
+.cell:nth-child(3n) {
+  border-right: 2px solid var(--thick);
+}
+
+.cell:nth-child(9n) {
+  border-right: none;
+}
+
+.cell:nth-child(n+19):nth-child(-n+27),
+.cell:nth-child(n+46):nth-child(-n+54) {
+  border-bottom: 2px solid var(--thick);
+}
+
+.notes-grid {
+  position: absolute;
+  inset: 3px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  pointer-events: none;
+}
+
+.note {
+  font-size: clamp(8px, 1.8vw, 12px);
+  color: var(--notes);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.controls {
+  width: min(560px, 94vw);
+  margin-top: 15px;
+  display: flex;
+  gap: 8px;
+}
+
+.control-button {
+  flex: 1;
+  padding: 12px 5px;
+  border: none;
+  border-radius: 12px;
+  background: var(--button);
+  color: var(--text);
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.control-button:hover {
+  background: var(--button-hover);
+}
+
+.control-button.active {
+  background: var(--active);
+  color: white;
+}
+
+.number-pad {
+  width: min(560px, 94vw);
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 7px;
+  margin-top: 13px;
+}
+
+.number-button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 0;
+  background: var(--button);
+  color: var(--text);
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.number-button:hover {
+  background: var(--button-hover);
+}
+
+.number-button.hidden-number {
+  visibility: hidden;
+}
+
+.hint {
+  margin-top: 10px;
+  color: var(--secondary);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* OVERLAY */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.48);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 20;
+}
+
+.overlay.show {
+  display: flex;
+}
+
+.overlay-card {
+  width: min(380px, 90vw);
+  background: var(--board);
+  border-radius: 22px;
+  padding: 35px 25px;
+  text-align: center;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.25);
+}
+
+.overlay-card h2 {
+  font-size: 34px;
+  margin: 0 0 10px;
+}
+
+.overlay-card p {
+  color: var(--secondary);
+  line-height: 1.7;
+}
+
+.overlay-button {
+  border: none;
+  background: var(--active);
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  padding: 14px 30px;
+  border-radius: 13px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.overlay-button:hover {
+  background: var(--active-dark);
+}
+
+@media (max-width: 500px) {
+  h1 {
+    font-size: 40px;
+    margin-top: 50px;
+  }
+
+  .game-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .controls {
+    gap: 5px;
+  }
+
+  .control-button {
+    font-size: 11px;
+  }
+
+  .number-pad {
+    gap: 4px;
+  }
+
+  .number-button {
+    font-size: 17px;
+    padding: 10px 0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+  <!-- MAIN MENU -->
+  <section id="mainScreen" class="screen active">
+    <h1>SUDOKU</h1>
+    <div class="subtitle">a pretty little puzzle ♡</div>
+
+    <button class="menu-button primary" onclick="showDifficulty()">
+      PLAY
+    </button>
+
+    <button class="menu-button" onclick="showThemes()">
+      THEME
+    </button>
+  </section>
+
+
+  <!-- DIFFICULTY -->
+  <section id="difficultyScreen" class="screen">
+    <div class="menu-title">Choose Difficulty</div>
+
+    <button class="menu-button" onclick="startGame('Easy')">
+      Easy
+    </button>
+
+    <button class="menu-button" onclick="startGame('Medium')">
+      Medium
+    </button>
+
+    <button class="menu-button" onclick="startGame('Hard')">
+      Hard
+    </button>
+
+    <button class="menu-button" onclick="show('mainScreen')">
+      Back
+    </button>
+  </section>
+
+
+  <!-- THEMES -->
+  <section id="themeScreen" class="screen">
+    <div class="menu-title">Choose Theme</div>
+
+    <button class="theme-option lavender" onclick="setTheme('lavender')">
+      Lavender
+    </button>
+
+    <button class="theme-option pink" onclick="setTheme('pink')">
+      Pink
+    </button>
+
+    <button class="theme-option blue" onclick="setTheme('blue')">
+      Blue
+    </button>
+
+    <button class="theme-option cream" onclick="setTheme('cream')">
+      Cream
+    </button>
+
+    <button class="theme-option dark" onclick="setTheme('dark')">
+      Dark
+    </button>
+
+    <button class="menu-button" onclick="show('mainScreen')">
+      Back
+    </button>
+  </section>
+
+
+  <!-- GAME -->
+  <section id="gameScreen" class="screen">
+
+    <div class="game-header">
+
+      <div class="game-title">
+        SUDOKU
+      </div>
+
+      <div class="stats">
+
+        <span id="difficultyLabel">
+          Easy
+        </span>
+
+        <span id="timer">
+          00:00
+        </span>
+
+        <span class="hearts" id="hearts">
+          ♥ ♥ ♥
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div id="board"></div>
+
+
+    <div class="controls">
+
+      <button class="control-button" onclick="toggleNotes()" id="notesButton">
+        ✎ Notes
+      </button>
+
+      <button class="control-button" onclick="eraseCell()">
+        Erase
+      </button>
+
+      <button class="control-button" onclick="newGame()">
+        New Puzzle
+      </button>
+
+      <button class="control-button" onclick="showThemes()">
+        Theme
+      </button>
+
+    </div>
+
+
+    <div class="number-pad" id="numberPad"></div>
+
+    <div class="hint">
+      Select a square, then choose a number ♡
+    </div>
+
+  </section>
+
+</div>
+
+
+<!-- OVERLAY -->
+<div id="overlay" class="overlay">
+
+  <div class="overlay-card">
+
+    <h2 id="overlayTitle">
+      You Win!
+    </h2>
+
+    <p id="overlayText"></p>
+
+    <button class="overlay-button" onclick="overlayAction()">
+      PLAY AGAIN
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   GAME VARIABLES
+========================================================= */
+
+let board = [];
+let solution = [];
+let given = [];
+let wrong = [];
+let notes = [];
+
+let selectedRow = -1;
+let selectedCol = -1;
+
+let difficulty = "Easy";
+
+let lives = 3;
+let mistakes = 0;
+
+let notesMode = false;
+
+let gameWon = false;
+let gameOver = false;
+
+let startTime = 0;
+let elapsedSeconds = 0;
+let timerID = null;
+
+let theme = "lavender";
+
+
+/* =========================================================
+   SCREEN MANAGEMENT
+========================================================= */
+
+function show(screenID) {
+
+  document.querySelectorAll(".screen").forEach(screen => {
+    screen.classList.remove("active");
+  });
+
+  document.getElementById(screenID).classList.add("active");
+}
+
+
+/* =========================================================
+   MENUS
+========================================================= */
+
+function showDifficulty() {
+  show("difficultyScreen");
+}
+
+
+function showThemes() {
+
+  show("themeScreen");
+}
+
+
+function setTheme(newTheme) {
+
+  theme = newTheme;
+
+  applyTheme();
+
+  /*
+    If a game already exists, return to it.
+  */
+  if (board.length === 9) {
+    show("gameScreen");
+    render();
+  } else {
+    show("mainScreen");
+  }
+}
+
+
+function applyTheme() {
+
+  if (theme === "lavender") {
+    document.body.className = "";
+  } else {
+    document.body.className = "theme-" + theme;
+  }
+}
+
+
+/* =========================================================
+   START GAME
+========================================================= */
+
+function startGame(selectedDifficulty) {
+
+  difficulty = selectedDifficulty;
+
+  newGame();
+
+  show("gameScreen");
+}
+
+
+/* =========================================================
+   NEW GAME
+========================================================= */
+
+function newGame() {
+
+  clearInterval(timerID);
+
+  board = createEmptyBoard();
+  solution = createEmptyBoard();
+  given = createEmptyBooleanBoard();
+  wrong = createEmptyBooleanBoard();
+  notes = createNotesBoard();
+
+  selectedRow = -1;
+  selectedCol = -1;
+
+  lives = 3;
+  mistakes = 0;
+
+  notesMode = false;
+
+  gameWon = false;
+  gameOver = false;
+
+  document.getElementById("notesButton").classList.remove("active");
+
+  /*
+    Generate a complete valid Sudoku.
+  */
+  makeSolution();
+
+  /*
+    Copy the solution to the playable board.
+  */
+  for (let r = 0; r < 9; r++) {
+
+    for (let c = 0; c < 9; c++) {
+
+      board[r][c] = solution[r][c];
+      given[r][c] = true;
+
+    }
+  }
+
+
+  /*
+    Remove cells based on difficulty.
+  */
+  let removeCount = 35;
+
+  if (difficulty === "Medium") {
+    removeCount = 45;
+  }
+
+  if (difficulty === "Hard") {
+    removeCount = 52;
+  }
+
+
+  let removed = 0;
+
+  while (removed < removeCount) {
+
+    let r = floorRandom(9);
+    let c = floorRandom(9);
+
+    if (board[r][c] !== 0) {
+
+      board[r][c] = 0;
+      given[r][c] = false;
+
+      removed++;
+    }
+  }
+
+
+  startTime = Date.now();
+  elapsedSeconds = 0;
+
+  timerID = setInterval(updateTimer, 1000);
+
+  updateTimer();
+
+  document.getElementById("difficultyLabel").textContent = difficulty;
+
+  updateHearts();
+
+  render();
+}
+
+
+/* =========================================================
+   ARRAY HELPERS
+========================================================= */
+
+function createEmptyBoard() {
+
+  return Array.from(
+    { length: 9 },
+    () => Array(9).fill(0)
+  );
+}
+
+
+function createEmptyBooleanBoard() {
+
+  return Array.from(
+    { length: 9 },
+    () => Array(9).fill(false)
+  );
+}
+
+
+function createNotesBoard() {
+
+  return Array.from(
+    { length: 9 },
+    () =>
+      Array.from(
+        { length: 9 },
+        () => new Set()
+      )
+  );
+}
+
+
+/* =========================================================
+   SUDOKU GENERATOR
+========================================================= */
+
+function makeSolution() {
+
+  /*
+    Start empty.
+  */
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      solution[r][c] = 0;
+    }
+  }
+
+  solve(solution);
+}
+
+
+function solve(grid) {
+
+  let empty = findEmpty(grid);
+
+  if (!empty) {
+    return true;
+  }
+
+  let r = empty.r;
+  let c = empty.c;
+
+  let numbers = [1,2,3,4,5,6,7,8,9];
+
+  shuffle(numbers);
+
+  for (let number of numbers) {
+
+    if (valid(grid, r, c, number)) {
+
+      grid[r][c] = number;
+
+      if (solve(grid)) {
+        return true;
+      }
+
+      grid[r][c] = 0;
+    }
+  }
+
+  return false;
+}
+
+
+function findEmpty(grid) {
+
+  for (let r = 0; r < 9; r++) {
+
+    for (let c = 0; c < 9; c++) {
+
+      if (grid[r][c] === 0) {
+
+        return {
+          r: r,
+          c: c
+        };
+
+      }
+    }
+  }
+
+  return null;
+}
+
+
+function valid(grid, r, c, number) {
+
+  /*
+    Check row.
+  */
+  for (let x = 0; x < 9; x++) {
+
+    if (grid[r][x] === number) {
+      return false;
+    }
+  }
+
+
+  /*
+    Check column.
+  */
+  for (let y = 0; y < 9; y++) {
+
+    if (grid[y][c] === number) {
+      return false;
+    }
+  }
+
+
+  /*
+    Check 3x3 box.
+  */
+  let boxRow = Math.floor(r / 3) * 3;
+  let boxCol = Math.floor(c / 3) * 3;
+
+  for (let y = 0; y < 3; y++) {
+
+    for (let x = 0; x < 3; x++) {
+
+      if (
+        grid[boxRow + y][boxCol + x] === number
+      ) {
+        return false;
+      }
+
+    }
+  }
+
+  return true;
+}
+
+
+/* =========================================================
+   RANDOM HELPERS
+========================================================= */
+
+function shuffle(array) {
+
+  for (let i = array.length - 1; i > 0; i--) {
+
+    let j = Math.floor(Math.random() * (i + 1));
+
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+
+function floorRandom(max) {
+
+  return Math.floor(Math.random() * max);
+}
+
+
+/* =========================================================
+   RENDER BOARD
+========================================================= */
+
+function render() {
+
+  const boardElement = document.getElementById("board");
+
+  boardElement.innerHTML = "";
+
+
+  for (let r = 0; r < 9; r++) {
+
+    for (let c = 0; c < 9; c++) {
+
+      const cell = document.createElement("div");
+
+      cell.className = "cell";
+
+      /*
+        Related cells:
+        same row, column or box.
+      */
+      if (
+        selectedRow !== -1 &&
+        (
+          r === selectedRow ||
+          c === selectedCol ||
+          sameBox(r, c, selectedRow, selectedCol)
+        )
+      ) {
+        cell.classList.add("related");
+      }
+
+
+      /*
+        Selected cell.
+      */
+      if (
+        r === selectedRow &&
+        c === selectedCol
+      ) {
+        cell.classList.add("selected");
+      }
+
+
+      /*
+        Same number.
+      */
+      if (
+        selectedRow !== -1 &&
+        board[selectedRow][selectedCol] !== 0 &&
+        board[r][c] === board[selectedRow][selectedCol]
+      ) {
+        cell.classList.add("same-number");
+      }
+
+
+      /*
+        Given/player/wrong styling.
+      */
+      if (given[r][c]) {
+
+        cell.classList.add("given");
+
+      } else if (wrong[r][c]) {
+
+        cell.classList.add("wrong");
+
+      } else if (board[r][c] !== 0) {
+
+        cell.classList.add("player");
+      }
+
+
+      /*
+        Number.
+      */
+      if (board[r][c] !== 0) {
+
+        cell.textContent = board[r][c];
+
+      } else {
+
+        /*
+          Notes.
+        */
+        let noteGrid = document.createElement("div");
+
+        noteGrid.className = "notes-grid";
+
+        for (let n = 1; n <= 9; n++) {
+
+          let note = document.createElement("div");
+
+          note.className = "note";
+
+          if (notes[r][c].has(n)) {
+            note.textContent = n;
+          }
+
+          noteGrid.appendChild(note);
+        }
+
+        cell.appendChild(noteGrid);
+      }
+
+
+      cell.onclick = function() {
+        selectCell(r, c);
+      };
+
+
+      boardElement.appendChild(cell);
+    }
+  }
+
+
+  renderPad();
+}
+
+
+/* =========================================================
+   CELL SELECTION
+========================================================= */
+
+function selectCell(r, c) {
+
+  if (gameWon || gameOver) {
+    return;
+  }
+
+  selectedRow = r;
+  selectedCol = c;
+
+  render();
+}
+
+
+/* =========================================================
+   SAME BOX
+========================================================= */
+
+function sameBox(r1, c1, r2, c2) {
+
+  return (
+    Math.floor(r1 / 3) === Math.floor(r2 / 3) &&
+    Math.floor(c1 / 3) === Math.floor(c2 / 3)
+  );
+}
+
+
+/* =========================================================
+   NUMBER PAD
+========================================================= */
+
+function renderPad() {
+
+  const pad = document.getElementById("numberPad");
+
+  pad.innerHTML = "";
+
+
+  for (let n = 1; n <= 9; n++) {
+
+    const button = document.createElement("button");
+
+    button.className = "number-button";
+
+    /*
+      Hide number if all 9 copies
+      already exist on board.
+    */
+    if (countNumber(n) >= 9) {
+      button.classList.add("hidden-number");
+    }
+
+    button.textContent = n;
+
+    button.onclick = function() {
+      enterNumber(n);
+    };
+
+    pad.appendChild(button);
+  }
+}
+
+
+function countNumber(number) {
+
+  let count = 0;
+
+  for (let r = 0; r < 9; r++) {
+
+    for (let c = 0; c < 9; c++) {
+
+      if (board[r][c] === number) {
+        count++;
+      }
+
+    }
+  }
+
+  return count;
+}
+
+
+/* =========================================================
+   ENTER NUMBER
+========================================================= */
+
+function enterNumber(number) {
+
+  if (gameWon || gameOver) {
+    return;
+  }
+
+  if (
+    selectedRow === -1 ||
+    selectedCol === -1
+  ) {
+    return;
+  }
+
+
+  /*
+    Cannot change original numbers.
+  */
+  if (given[selectedRow][selectedCol]) {
+    return;
+  }
+
+
+  /*
+    NOTES MODE
+  */
+  if (notesMode) {
+
+    if (board[selectedRow][selectedCol] !== 0) {
+      return;
+    }
+
+    if (notes[selectedRow][selectedCol].has(number)) {
+
+      notes[selectedRow][selectedCol].delete(number);
+
+    } else {
+
+      notes[selectedRow][selectedCol].add(number);
+    }
+
+    render();
+
+    return;
+  }
+
+
+  /*
+    If the number is correct.
+  */
+  if (
+    number === solution[selectedRow][selectedCol]
+  ) {
+
+    board[selectedRow][selectedCol] = number;
+
+    wrong[selectedRow][selectedCol] = false;
+
+    notes[selectedRow][selectedCol].clear();
+
+    removeNotes(number);
+
+    render();
+
+    checkWin();
+
+  } else {
+
+    /*
+      Incorrect number.
+    */
+    board[selectedRow][selectedCol] = number;
+
+    wrong[selectedRow][selectedCol] = true;
+
+    mistakes++;
+    lives--;
+
+    updateHearts();
+
+    render();
+
+
+    if (lives <= 0) {
+
+      gameOver = true;
+
+      clearInterval(timerID);
+
+      showGameOver();
+    }
+  }
+}
+
+
+/* =========================================================
+   REMOVE NOTES
+========================================================= */
+
+function removeNotes(number) {
+
+  for (let r = 0; r < 9; r++) {
+
+    for (let c = 0; c < 9; c++) {
+
+      /*
+        Same row.
+      */
+      if (r === selectedRow) {
+        notes[r][c].delete(number);
+      }
+
+      /*
+        Same column.
+      */
+      if (c === selectedCol) {
+        notes[r][c].delete(number);
+      }
+
+      /*
+        Same box.
+      */
+      if (
+        sameBox(
+          r,
+          c,
+          selectedRow,
+          selectedCol
+        )
+      ) {
+        notes[r][c].delete(number);
+      }
+    }
+  }
+}
+
+
+/* =========================================================
+   ERASE
+========================================================= */
+
+function eraseCell() {
+
+  if (gameWon || gameOver) {
+    return;
+  }
+
+  if (
+    selectedRow === -1 ||
+    selectedCol === -1
+  ) {
+    return;
+  }
+
+  if (given[selectedRow][selectedCol]) {
+    return;
+  }
+
+  board[selectedRow][selectedCol] = 0;
+
+  wrong[selectedRow][selectedCol] = false;
+
+  render();
+}
+
+
+/* =========================================================
+   NOTES MODE
+========================================================= */
+
+function toggleNotes() {
+
+  if (gameWon || gameOver) {
+    return;
+  }
+
+  notesMode = !notesMode;
+
+  const button =
+    document.getElementById("notesButton");
+
+  button.classList.toggle(
+    "active",
+    notesMode
+  );
+}
+
+
+/* =========================================================
+   WIN CHECK
+========================================================= */
+
+function checkWin() {
+
+  for (let r = 0; r < 9; r++) {
+
+    for (let c = 0; c < 9; c++) {
+
+      if (
+        board[r][c] !==
+        solution[r][c]
+      ) {
+        return false;
+      }
+
+    }
+  }
+
+  gameWon = true;
+
+  clearInterval(timerID);
+
+  showWin();
+
+  return true;
+}
+
+
+/* =========================================================
+   LIVES
+========================================================= */
+
+function updateHearts() {
+
+  let hearts = "";
+
+  for (let i = 0; i < 3; i++) {
+
+    if (i < lives) {
+      hearts += "♥ ";
+    } else {
+      hearts += "♡ ";
+    }
+  }
+
+  document.getElementById("hearts").textContent =
+    hearts.trim();
+}
+
+
+/* =========================================================
+   TIMER
+========================================================= */
+
+function updateTimer() {
+
+  if (!startTime) {
+    return;
+  }
+
+  elapsedSeconds =
+    Math.floor(
+      (Date.now() - startTime) / 1000
+    );
+
+  document.getElementById("timer").textContent =
+    formatTime(elapsedSeconds);
+}
+
+
+function formatTime(seconds) {
+
+  let minutes =
+    Math.floor(seconds / 60);
+
+  let secs =
+    seconds % 60;
+
+  return (
+    String(minutes).padStart(2, "0") +
+    ":" +
+    String(secs).padStart(2, "0")
+  );
+}
+
+
+/* =========================================================
+   WIN SCREEN
+========================================================= */
+
+function showWin() {
+
+  document.getElementById("overlayTitle").textContent =
+    "You Win! ♡";
+
+  document.getElementById("overlayText").innerHTML =
+    "Puzzle completed!<br><br>" +
+    "Time: <b>" +
+    formatTime(elapsedSeconds) +
+    "</b><br>" +
+    "Mistakes: <b>" +
+    mistakes +
+    "</b>";
+
+  document.querySelector(".overlay-button").textContent =
+    "PLAY AGAIN";
+
+  document.getElementById("overlay").classList.add("show");
+}
+
+
+/* =========================================================
+   GAME OVER
+========================================================= */
+
+function showGameOver() {
+
+  document.getElementById("overlayTitle").textContent =
+    "Game Over";
+
+  document.getElementById("overlayText").innerHTML =
+    "You ran out of lives!<br><br>" +
+    "Mistakes: <b>" +
+    mistakes +
+    "</b>";
+
+  document.querySelector(".overlay-button").textContent =
+    "TRY AGAIN";
+
+  document.getElementById("overlay").classList.add("show");
+}
+
+
+/* =========================================================
+   OVERLAY ACTION
+========================================================= */
+
+function overlayAction() {
+
+  document.getElementById("overlay").classList.remove("show");
+
+  newGame();
+
+  show("gameScreen");
+}
+
+
+/* =========================================================
+   KEYBOARD CONTROLS
+========================================================= */
+
+document.addEventListener("keydown", function(event) {
+
+  /*
+    Number keys.
+  */
+  if (
+    event.key >= "1" &&
+    event.key <= "9"
+  ) {
+
+    enterNumber(
+      Number(event.key)
+    );
+
+    return;
+  }
+
+
+  /*
+    Erase.
+  */
+  if (
+    event.key === "Backspace" ||
+    event.key === "Delete" ||
+    event.key === "0"
+  ) {
+
+    eraseCell();
+
+    return;
+  }
+
+
+  /*
+    Arrow navigation.
+  */
+  if (
+    selectedRow === -1 ||
+    selectedCol === -1
+  ) {
+    return;
+  }
+
+
+  if (event.key === "ArrowUp") {
+
+    event.preventDefault();
+
+    selectedRow =
+      (selectedRow + 8) % 9;
+
+    render();
+  }
+
+
+  if (event.key === "ArrowDown") {
+
+    event.preventDefault();
+
+    selectedRow =
+      (selectedRow + 1) % 9;
+
+    render();
+  }
+
+
+  if (event.key === "ArrowLeft") {
+
+    event.preventDefault();
+
+    selectedCol =
+      (selectedCol + 8) % 9;
+
+    render();
+  }
+
+
+  if (event.key === "ArrowRight") {
+
+    event.preventDefault();
+
+    selectedCol =
+      (selectedCol + 1) % 9;
+
+    render();
+  }
+
+});
+
+
+/* =========================================================
+   INITIAL SETUP
+========================================================= */
+
+applyTheme();
+
+</script>
+
+</body>
+</html>
